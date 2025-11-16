@@ -7,6 +7,6 @@ class Task:
     id: int
     title: str
     description: str
-    completed: bool
     priority: int
     due_date: date
+    completed: bool = False
