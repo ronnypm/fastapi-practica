@@ -22,7 +22,7 @@ task_list = [
         id=3,
         title="Actualizar sistema",
         description="Instalar actualizaciones del servidor",
-        completed=True,
+        completed=False,
         priority=1,
         due_date=date(2025, 2, 28)
     ),
@@ -37,7 +37,7 @@ task_list = [
     Task(
         id=5,
         title="Hacer backup general",
-        description=None,
+        description="Hacer un backup de todo el sistema",
         completed=False,
         priority=2,
         due_date=date(2025, 3, 15)
