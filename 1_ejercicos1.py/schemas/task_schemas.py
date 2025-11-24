@@ -12,7 +12,7 @@ class TaskCreate(BaseModel):
     @classmethod
     def validate_title(cls, value):
         cleaned = value.strip()
-        if cleaned < 3:
+        if len(cleaned) < 3:
             raise ValueError("Titulo muy corto")
         return cleaned
 
@@ -43,6 +43,10 @@ class TaskResponse(BaseModel):
     description: str
     priority: int
     due_date: date
+    completed: bool
+
+
+class TaskComplete(BaseModel):
     completed: bool
 
 
