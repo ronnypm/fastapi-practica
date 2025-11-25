@@ -4,7 +4,7 @@ from typing import List
 from schemas.task_schemas import TaskCreate, TaskResponse, TaskComplete, TaskUpdatePriority
 from models.task_models import Task
 from database.db import task_list
-from services.tasks_services import get_all_tasks, search_task_by_id, filter_by_status
+from services.tasks_services import get_all_tasks, search_task_by_id, filter_by_status, create_task, task_completed, task_priority
 
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -46,37 +46,14 @@ async def filter_tasks_by_status(completed: bool):
     return filter_by_status(task_list, completed)
 
 
-def fetch_last_id():
-    return task_list[-1].id if task_list else 0
-
-
 @router.post("/",
              response_model=TaskResponse,
              status_code=status.HTTP_201_CREATED,
              summary="Creacion de una nueva tarea",
              description="Ingreso de datos para la creacion de una nueva tarea en el sistema.",
-             responses={
-                 201: {
-                     "description": "Tarea creada exitosamente",
-                     "model": TaskResponse
-                 },
-                 400: {
-                     "description": "Datos inválidos enviados"
-                 }
-             }
              )
 async def create_new_task(task_create: TaskCreate):
-    new_id = fetch_last_id() + 1
-    new_task = Task(
-        id=new_id,
-        title=task_create.title,
-        description=task_create.description,
-        completed=False,
-        priority=task_create.priority,
-        due_date=task_create.due_date
-    )
-    task_list.append(new_task)
-    return new_task
+    return create_task(task_create)
 
 
 @router.patch(
@@ -86,15 +63,12 @@ async def create_new_task(task_create: TaskCreate):
     description="Actulaliza el estado de completado de una tarea"
 )
 async def mark_task_completed(task_id: int, task_complete: TaskComplete):
-    task = next((task for task in task_list if task.id == task_id), None)
-
+    task = task_completed(task_id, task_complete)
     if not task:
         raise HTTPException(
             status_code=404,
             detail="Tarea no encontrada"
         )
-
-    task.completed = task_complete.completed
     return task
 
 
@@ -104,14 +78,11 @@ async def mark_task_completed(task_id: int, task_complete: TaskComplete):
     summary="Actualizar prioridad de tarea",
     description="Actulaliza el estado de prioridad de una tarea"
 )
-async def update_task_completed(task_id: int, task_update_priority: TaskUpdatePriority):
-    task = next((task for task in task_list if task.id == task_id), None)
-
+async def update_task_priority(task_id: int, task_update_priority: TaskUpdatePriority):
+    task = task_priority(task_id, task_update_priority)
     if not task:
         raise HTTPException(
             status_code=404,
             detail="Tarea no encontrada"
         )
-
-    task.priority = task_update_priority.priority
     return task
